@@ -13,7 +13,7 @@
   text-align: center;
   margin-bottom: 3rem;
   padding: 2rem 0.4rem;
-  background: linear-gradient(135deg, #1565C0 0%, #42A5F5 100%); /* Professional blue gradient for HVAC */
+  background: linear-gradient(135deg, #424242 0%, #616161 100%); /* Professional gray gradient for Windows */
   color: #FFFFFF;
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
@@ -41,7 +41,7 @@
   font-size: 2rem;
   color: #212121;
   margin-bottom: 1.5rem;
-  border-bottom: 3px solid #1976D2; /* Dark blue accent for HVAC */
+  border-bottom: 3px solid #757575; /* Gray accent for Windows */
   padding-bottom: 0.5rem;
 }
 
@@ -74,7 +74,7 @@
 .step-number {
   width: 50px;
   height: 50px;
-  background: #1976D2; /* Dark blue for HVAC */
+  background: #757575; /* Gray for Windows */
   color: #FFFFFF;
   border-radius: 50%;
   display: flex;
@@ -98,7 +98,7 @@
 }
 
 .commitment li {
-  background: #F5F5F5; /* Light gray for HVAC professionalism */
+  background: #FAFAFA; /* Very light gray for Windows professionalism */
   margin-bottom: 1rem;
   padding: 1.5rem;
   border-radius: 8px;
@@ -125,7 +125,7 @@
 
 .cta-button {
   display: inline-block;
-  background: #1976D2; /* Dark blue for HVAC */
+  background: #757575; /* Gray for Windows */
   color: #FFFFFF;
   padding: 1rem 2rem;
   text-decoration: none;

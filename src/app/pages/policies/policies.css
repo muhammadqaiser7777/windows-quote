@@ -2,7 +2,7 @@
 .policies-container {
   width: 100%;
   padding: 2rem 0;
-  background: linear-gradient(135deg, #E3F2FD 0%, #FFFFFF 100%); /* Light blue to white for HVAC */
+  background: linear-gradient(135deg, #F5F5F5 0%, #FFFFFF 100%); /* Light gray to white for Windows */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -66,7 +66,7 @@
 
 /* Hover Effects */
 .tab-btn:hover {
-  background: #1976D2; /* Dark blue for HVAC */
+  background: #757575; /* Gray for Windows */
   color: #ffffff;
   border-color: #1976D2;
   transform: translateY(-3px);
@@ -79,7 +79,7 @@
 
 /* Active Button */
 .tab-btn.active {
-  background: #1565C0; /* Darker blue for HVAC */
+  background: #424242; /* Darker gray for Windows */
   color: #ffffff;
   border-color: #1565C0;
   font-weight: 600;
@@ -105,7 +105,7 @@
 }
 
 .policy-content:hover {
-  box-shadow: 0 6px 20px rgba(21, 101, 192, 0.2); /* Darker blue shadow for HVAC */
+  box-shadow: 0 6px 20px rgba(66, 66, 66, 0.2); /* Darker gray shadow for Windows */
   transform: translateY(-2px);
 }
 

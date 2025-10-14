@@ -11,7 +11,7 @@ body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
-  background: linear-gradient(135deg, #E3F2FD 0%, #FFFFFF 100%); /* Cool light blue to white gradient for HVAC theme */
-  color: #1565C0; /* Dark blue text for professionalism */
+  background: linear-gradient(135deg, #F5F5F5 0%, #FFFFFF 100%); /* Light gray to white gradient for Windows theme */
+  color: #424242; /* Dark gray text for professionalism */
   min-height: 100vh;
 }

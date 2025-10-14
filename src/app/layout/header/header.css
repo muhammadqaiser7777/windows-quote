@@ -4,14 +4,14 @@
   top: 0;
   z-index: 100;
   width: 100%;
-  background: linear-gradient(135deg, #1565C0 0%, #42A5F5 100%); /* Professional blue gradient for HVAC */
+  background: linear-gradient(135deg, #424242 0%, #616161 100%); /* Professional gray gradient for Windows */
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
   border-bottom: 2px solid #1976D2; /* Darker blue accent border */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .site-header.scrolled {
-  background: rgba(21, 101, 192, 0.95); /* Darker blue on scroll for HVAC theme */
+  background: rgba(66, 66, 66, 0.95); /* Darker gray on scroll for Windows theme */
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(8px);
 }
@@ -72,7 +72,7 @@
   bottom: -6px;
   width: 0;
   height: 2px;
-  background: #1976D2; /* Dark blue accent for HVAC */
+  background: #757575; /* Gray accent for Windows */
   transition: width 0.3s ease;
 }
 
@@ -83,7 +83,7 @@
 
 /* ---------- GET QUOTE BUTTON ---------- */
 .quote-btn {
-  background: #1976D2; /* Dark blue for HVAC professionalism */
+  background: #757575; /* Gray for Windows professionalism */
   color: #FFFFFF;
   padding: 0.5rem 1.2rem;
   border-radius: 8px;
@@ -93,7 +93,7 @@
 }
 
 .quote-btn:hover {
-  background: #0D47A1; /* Even darker blue */
+  background: #424242; /* Even darker gray */
   color: #ffffff;
   transform: translateY(-2px);
 }
@@ -162,7 +162,7 @@
 }
 
 .mobile-dropdown a:hover {
-  color: #1976D2; /* Dark blue hover for HVAC theme */
+  color: #757575; /* Gray hover for Windows theme */
 }
 
 /* ---------- RESPONSIVE ---------- */

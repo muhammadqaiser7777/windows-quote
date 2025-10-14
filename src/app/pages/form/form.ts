@@ -14,6 +14,7 @@ export class Form implements OnInit {
   currentStep: number = 1;
   totalSteps: number = 9;
   windowsMaterial: string = '';
+  windowsType: string = '';
   ProjectNature: string = '';
   homeOwner: string = '';
   propertyType: string = '';
@@ -328,6 +329,10 @@ export class Form implements OnInit {
         this.errors['windowsMaterial'] = 'Please select a service.';
         valid = false;
       }
+      if (!this.windowsType) {
+        this.errors['windowsType'] = 'Please select the number of windows.';
+        valid = false;
+      }
       if (!this.ProjectNature) {
         this.errors['ProjectNature'] = 'Please select the nature of your project.';
         valid = false;
@@ -472,6 +477,7 @@ export class Form implements OnInit {
 
       const payload = {
         windowsMaterial: parseInt(this.windowsMaterial),
+        windowsType: parseInt(this.windowsType),
         ProjectNature: parseInt(this.ProjectNature),
         homeOwner: parseInt(this.homeOwner),
         Propertytype: parseInt(this.propertyType),

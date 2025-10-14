@@ -70,7 +70,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: url('/assets/images/hvac-1.jpg') center/cover no-repeat;
+  background: url('/assets/images/windows-1.jpg') center/cover no-repeat;
   z-index: -1;
 }
 
@@ -80,7 +80,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(21, 101, 192, 0.4); /* Darker blue overlay for HVAC theme */
+  background: rgba(66, 66, 66, 0.4); /* Darker gray overlay for Windows theme */
   z-index: 0;
 }
 
@@ -96,7 +96,7 @@
 .shape {
   position: absolute;
   border-radius: 50%;
-  background: rgba(21, 101, 192, 0.15); /* Darker blue shapes for HVAC theme */
+  background: rgba(66, 66, 66, 0.15); /* Darker gray shapes for Windows theme */
   animation: float 20s ease-in-out infinite;
 }
 
@@ -173,7 +173,7 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #1976D2 0%, #42A5F5 100%); /* Blue gradient for HVAC */
+  background: linear-gradient(135deg, #757575 0%, #9E9E9E 100%); /* Gray gradient for Windows */
   color: #FFFFFF;
   box-shadow: 0 8px 25px rgba(25, 118, 210, 0.3);
 }
@@ -191,7 +191,7 @@
 
 .btn-secondary:hover {
   background: #FFFFFF;
-  color: #1565C0; /* Darker blue for HVAC theme */
+  color: #424242; /* Darker gray for Windows theme */
 }
 
 .hero-stats {
@@ -224,7 +224,7 @@
 /* Services Section */
 .services-section {
   padding: 5rem 0;
-  background: linear-gradient(145deg, #E3F2FD 0%, #FFFFFF 100%); /* Lighter blue to white for HVAC */
+  background: linear-gradient(145deg, #F5F5F5 0%, #FFFFFF 100%); /* Lighter gray to white for Windows */
 }
 
 .container {
@@ -350,7 +350,7 @@
 /* Features Section */
 .features-section {
   padding: 5rem 0;
-  background: #F5F5F5; /* Light gray for HVAC professionalism */
+  background: #FAFAFA; /* Very light gray for Windows professionalism */
 }
 
 .features-grid {
@@ -371,7 +371,7 @@
 .feature-icon {
   width: 80px;
   height: 80px;
-  background: linear-gradient(135deg, #1976D2 0%, #42A5F5 100%); /* Blue gradient for HVAC */
+  background: linear-gradient(135deg, #757575 0%, #9E9E9E 100%); /* Gray gradient for Windows */
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -398,7 +398,7 @@
 /* CTA Section */
 .cta-section {
   padding: 5rem 0;
-  background: linear-gradient(135deg, #1565C0 0%, #42A5F5 100%); /* Professional blue gradient for HVAC */
+  background: linear-gradient(135deg, #424242 0%, #616161 100%); /* Professional gray gradient for Windows */
   color: #FFFFFF;
   text-align: center;
 }
@@ -438,7 +438,7 @@
 .btn-primary-large:hover {
   transform: translateY(-3px);
   box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
-  color: #1565C0; /* Darker blue for HVAC theme */
+  color: #424242; /* Darker gray for Windows theme */
 }
 
 .btn-outline {
@@ -451,7 +451,7 @@
 
 .btn-outline:hover {
   background: #FFFFFF;
-  color: #1565C0; /* Darker blue for HVAC theme */
+  color: #424242; /* Darker gray for Windows theme */
 }
 
 /* Responsive Design */

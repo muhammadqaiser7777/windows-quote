@@ -11,33 +11,27 @@
         <label for="windowsMaterial">What windows service do you need?</label>
         <select id="windowsMaterial" [(ngModel)]="windowsMaterial" name="windowsMaterial" required>
           <option value="">Select an option</option>
-          <option value="1">Air Ducts Repair & Replace</option>
-          <option value="2">Boiler & Radiators New Install</option>
-          <option value="3">Central air Cleaning & maintenance</option>
-          <option value="4">Central Air-New Install</option>
-          <option value="5">Central Air-Repari</option>
-          <option value="6">Commercial Cooling</option>
-          <option value="7">Commercial Heat-New Install</option>
-          <option value="8">Commercial Heat-Repair</option>
-          <option value="9">Ductless Air Conditioning</option>
-          <option value="10">Furnaces-New Install</option>
-          <option value="11">Furnaces-Repair</option>
-          <option value="12">Gas Heat-New install</option>
-          <option value="13">Gas Heat-Repair</option>
-          <option value="14">Geothermal Systems</option>
-          <option value="15">Heating-New Install</option>
-          <option value="16">Heating-Repair</option>
-          <option value="17">Heat Pumps-New Install</option>
-          <option value="18">Heat Pumps-Repair</option>
-          <option value="19">Oil Heat-New Install</option>
-          <option value="20">Oil Heat-Repair</option>
-          <option value="21">Radiant Floor System</option>
-          <option value="22">Thermostats</option>
-          <option value="23">Boiler & Radiators Repair</option>
-          <option value="24">Ductless AC Repair</option>
-          <option value="25">Ducts and Vents  Install</option>
+          <option value="1">Vinyl</option>
+          <option value="2">Wood</option>
+          <option value="3">Aluminium</option>
+          <option value="4">Brick</option>
+          <option value="5">Stone</option>
+          <option value="6">Metal</option>
+          <option value="7">Window Cleaning</option>
         </select>
         <div class="error" *ngIf="errors['windowsMaterial']">{{ errors['windowsMaterial'] }}</div>
+      </div>
+        <div class="question">
+        <label for="windowsType">How many Windows?</label>
+        <select id="windowsType" [(ngModel)]="windowsType" name="windowsType" required>
+          <option value="">Select an option</option>
+          <option value="1">1 Window</option>
+          <option value="2">2 Windows</option>
+          <option value="3">3-5 Windows</option>
+          <option value="4">6-9 Windows</option>
+          <option value="5">10+ Windows</option>
+        </select>
+        <div class="error" *ngIf="errors['windowsType']">{{ errors['windowsType'] }}</div>
       </div>
       <div class="question">
         <label for="ProjectNature">What is the nature of your project?</label>

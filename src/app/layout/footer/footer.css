@@ -1,12 +1,12 @@
 /* ---------- FOOTER BASE ---------- */
 .site-footer {
-  background: linear-gradient(135deg, #1565C0, #42A5F5); /* Professional blue gradient for HVAC */
+  background: linear-gradient(135deg, #424242, #616161); /* Professional gray gradient for Windows */
   color: #FFFFFF;
   width: 100%;
   padding: 1.5rem 0rem;
   font-family: 'Roboto', sans-serif;
   box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.15); /* Subtle top shadow */
-  border-top: 2px solid #1976D2; /* Dark blue accent */
+  border-top: 2px solid #757575; /* Gray accent */
 }
 
 /* ---------- FOOTER CONTAINER ---------- */
