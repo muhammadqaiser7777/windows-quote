@@ -45,6 +45,8 @@ export class Form implements OnInit {
   private leadiDPollTimer: any = null;
   private trustedFormPollTimer: any = null;
   private trustedFormInjected = false;
+  private removeUrlParamsTimer: any = null;
+  isSubmitting: boolean = false;
 
   areaCodesUS = [
     // Alabama
@@ -169,6 +171,19 @@ export class Form implements OnInit {
     this.fetchIPAddress();
     this.parseUrlParams();
     this.injectTrustedFormPing();
+    // Kick off TrustedForm immediately and poll until value is available or user submits
+    this.injectTrustedForm();
+    // Start LeadiD injection. We always attempt an immediate injection on load, but
+    // if affiliate/transaction params were present, delay the start of repeated polling
+    // by 10s and use a 2s retry interval. Otherwise start polling quickly.
+    if (this.aff_id || this.transaction_id || this.sub_aff_id) {
+      // Don't try an immediate injection when affiliate params are present –
+      // wait 10s and then start retrying every 2s
+      this.injectLeadiD(10000, 2000, false);
+    } else {
+      // Immediate attempt and fast polling for normal flows
+      this.injectLeadiD(500, 300, true);
+    }
   }
 
   fetchIPAddress() {
@@ -188,8 +203,16 @@ export class Form implements OnInit {
     this.aff_id = urlParams.get('aff_id') || '';
     this.transaction_id = urlParams.get('transaction_id') || '';
     this.sub_aff_id = urlParams.get('sub_aff_id') || '';
+    // If affiliate params are present, don't remove them immediately. Some
+    // third-party scripts (LeadiD) may inspect the URL on load to bootstrap
+    // their tokens. We'll schedule a cleanup to remove the params after a
+    // short delay, or remove them early when we successfully capture the lead id.
     if (this.aff_id || this.transaction_id || this.sub_aff_id) {
-      window.history.replaceState(null, '', window.location.pathname);
+      if (this.removeUrlParamsTimer) clearTimeout(this.removeUrlParamsTimer);
+      this.removeUrlParamsTimer = setTimeout(() => {
+        window.history.replaceState(null, '', window.location.pathname);
+        this.removeUrlParamsTimer = null;
+      }, 15000); // remove params after 15s if still present
     }
   }
 
@@ -435,6 +458,24 @@ export class Form implements OnInit {
     }
   }
 
+  // Prevent Enter from submitting the form prematurely. Allow Enter in textareas only.
+  // Accept a generic Event here because Angular's template typing supplies Event for (keydown.enter).
+  onFormEnter(event: Event) {
+    // event may not be a KeyboardEvent in the template typing, but it supports preventDefault/stopPropagation.
+    const target = (event as any).target as HTMLElement | null;
+    if (!target) return;
+    const tag = target.tagName.toLowerCase();
+    // Allow Enter in textarea or when the focused element is a button or submit input (so final-step submit still works)
+    const inputEl = target as HTMLInputElement;
+    const isButton = tag === 'button' || (tag === 'input' && (inputEl.type === 'submit' || inputEl.type === 'button'));
+    if (tag === 'textarea' || isButton) {
+      return; // allow default behavior
+    }
+    // Otherwise prevent Enter from submitting or advancing unexpectedly
+    if (typeof (event as any).preventDefault === 'function') (event as any).preventDefault();
+    if (typeof (event as any).stopPropagation === 'function') (event as any).stopPropagation();
+  }
+
   onPhoneKeyPress(event: KeyboardEvent) {
     const charCode = event.which ? event.which : event.keyCode;
     if (charCode < 48 || charCode > 57) {
@@ -471,6 +512,16 @@ export class Form implements OnInit {
   async submit() {
     this.errors = {};
     if (this.validateCurrentStep()) {
+      // Mark submitting and stop background polling while we submit
+      this.isSubmitting = true;
+      if (this.leadiDPollTimer) {
+        clearTimeout(this.leadiDPollTimer);
+        this.leadiDPollTimer = null;
+      }
+      if (this.trustedFormPollTimer) {
+        clearTimeout(this.trustedFormPollTimer);
+        this.trustedFormPollTimer = null;
+      }
       // Read values from DOM
       this.universalLeadid = (document.getElementById('leadid_token') as HTMLInputElement)?.value || '';
       this.xxTrustedFormCertUrl = (document.querySelector('input[name="xxTrustedFormCertUrl"]') as HTMLInputElement)?.value || '';
@@ -503,7 +554,7 @@ export class Form implements OnInit {
         url: window.location.href,
         browser: navigator.userAgent
       };
-      this.http.post('https://get-windows.com/api/ping-proxy.php', payload).subscribe({
+      this.http.post('https://windows-contractor.com/api/ping-proxy.php', payload).subscribe({
         next: (response) => {
           this.showThankYou = true;
           setTimeout(() => {
@@ -512,11 +563,28 @@ export class Form implements OnInit {
         },
         error: (error) => {
           this.errors['general'] = 'Something went wrong, please click submit again.';
+          // allow retry
+          this.isSubmitting = false;
+          // resume injection attempts
+          this.injectTrustedForm();
+          // try LeadiD again (use longer retry to avoid hammering)
+          this.injectLeadiD(500, 2000);
         }
       });
     }
   }
-  private injectLeadiD(): void {
+  /**
+   * Inject LeadiD script and poll for a value.
+   * initialDelay - ms before first poll
+   * retryInterval - ms between polls
+   */
+  /**
+   * Inject LeadiD script and poll for a value.
+   * pollStartDelay - ms before starting polling (allows delaying retries when query params present)
+   * retryInterval - ms between polls
+   * immediateAttempt - whether to run a single immediate injection attempt
+   */
+  private injectLeadiD(pollStartDelay: number = 500, retryInterval: number = 300, immediateAttempt: boolean = true): void {
     try {
       // Ensure the hidden input exists with the correct id and name
       let leadIdInput = document.getElementById('leadid_token') as HTMLInputElement | null;
@@ -529,75 +597,105 @@ export class Form implements OnInit {
         leadIdInput = input;
       }
 
-      // Remove old script if it exists
-      const oldScript = document.getElementById('LeadiDscript_campaign');
-      if (oldScript) {
-        oldScript.parentNode?.removeChild(oldScript);
+      const doInject = () => {
+        // Remove old campaign script if present
+        const oldScript = document.getElementById('LeadiDscript_campaign');
+        if (oldScript) {
+          oldScript.parentNode?.removeChild(oldScript);
+        }
+
+        // Ensure anchor script exists
+        let anchor = document.getElementById('LeadiDscript') as HTMLScriptElement | null;
+        if (!anchor) {
+          anchor = document.createElement('script') as HTMLScriptElement;
+          anchor.id = 'LeadiDscript';
+          anchor.type = 'text/javascript';
+          document.body.appendChild(anchor);
+        }
+
+        // Inject campaign script (only if not already present)
+        if (anchor.parentNode && !document.getElementById('LeadiDscript_campaign')) {
+          const s = document.createElement('script');
+          s.id = 'LeadiDscript_campaign';
+          s.type = 'text/javascript';
+          s.async = true;
+          s.src = '//create.lidstatic.com/campaign/548c86c2-3c24-2ec2-b201-274ffb0f5005.js?snippet_version=2';
+          anchor.parentNode.insertBefore(s, anchor);
+        }
+      };
+      // attempt an immediate injection if requested
+      if (immediateAttempt) {
+        doInject();
       }
 
-      // Ensure anchor script exists
-      let anchor = document.getElementById('LeadiDscript') as HTMLScriptElement | null;
-      if (!anchor) {
-        anchor = document.createElement('script') as HTMLScriptElement;
-        anchor.id = 'LeadiDscript';
-        anchor.type = 'text/javascript';
-        document.body.appendChild(anchor);
-      }
-
-      // Inject campaign script (only if anchor exists now)
-      if (anchor.parentNode) {
-        const s = document.createElement('script');
-        s.id = 'LeadiDscript_campaign';
-        s.type = 'text/javascript';
-        s.async = true;
-        s.src = '//create.lidstatic.com/campaign/548c86c2-3c24-2ec2-b201-274ffb0f5005.js?snippet_version=2';
-        anchor.parentNode.insertBefore(s, anchor);
-      }
-
-      // Poll for value until success
+      // Poll for value until success or until user submits / thank you is shown
       const poll = () => {
-        if (this.showThankYou) return;
+        if (this.showThankYou || this.isSubmitting) return;
         const el = document.getElementById('leadid_token') as HTMLInputElement | null;
         const val = el?.value || '';
         if (val) {
           this.universalLeadid = val;
-        } else {
-          this.leadiDPollTimer = setTimeout(poll, 300);
+          // If we scheduled URL cleanup, remove params now since we have the lead id
+          if (this.removeUrlParamsTimer) {
+            clearTimeout(this.removeUrlParamsTimer);
+            this.removeUrlParamsTimer = null;
+            window.history.replaceState(null, '', window.location.pathname);
+          }
+          return;
         }
+        // re-inject periodically to handle edge cases where first script didn't run
+        doInject();
+        // schedule next poll
+        if (this.leadiDPollTimer) clearTimeout(this.leadiDPollTimer);
+        this.leadiDPollTimer = setTimeout(poll, retryInterval);
       };
-      setTimeout(poll, 500);
+
+      // start polling after pollStartDelay
+      if (this.leadiDPollTimer) clearTimeout(this.leadiDPollTimer);
+      this.leadiDPollTimer = setTimeout(poll, pollStartDelay);
     } catch (e) {
       console.error('Failed to inject LeadiD:', e);
     }
   }
 
-  private injectTrustedForm() {
+  /**
+   * Inject TrustedForm script and poll for the cert URL until found.
+   * startDelay - ms before first poll
+   * retryInterval - ms between polls
+   */
+  private injectTrustedForm(startDelay: number = 500, retryInterval: number = 300) {
     try {
-      // Avoid duplicate injection
-      if (document.getElementById('trustedform-loader') || this.trustedFormInjected) return;
+      // Idempotent: mark injected so we don't append multiple script tags repeatedly
+      if (!this.trustedFormInjected) {
+        // Avoid duplicate injection element
+        if (!document.getElementById('trustedform-loader')) {
+          const tf = document.createElement('script');
+          tf.type = 'text/javascript';
+          tf.async = true;
+          tf.id = 'trustedform-loader';
+          tf.src = (document.location.protocol === 'https:' ? 'https' : 'http') +
+            '://api.trustedform.com/trustedform.js?field=xxTrustedFormCertUrl&ping_field=xxTrustedFormPingUrl&use_tagged_consent=true&l=' +
+            new Date().getTime() + Math.random();
+          document.body.appendChild(tf);
+        }
+        this.trustedFormInjected = true;
+      }
 
-      const tf = document.createElement('script');
-      tf.type = 'text/javascript';
-      tf.async = true;
-      tf.id = 'trustedform-loader';
-      tf.src = (document.location.protocol === 'https:' ? 'https' : 'http') +
-        '://api.trustedform.com/trustedform.js?field=xxTrustedFormCertUrl&ping_field=xxTrustedFormPingUrl&use_tagged_consent=true&l=' +
-        new Date().getTime() + Math.random();
-
-      document.body.appendChild(tf);
-
-      // Poll the hidden field for the value
+      // Poll the hidden field for the value until we have it or the user submits
       const poll = () => {
-        if (this.showThankYou) return;
+        if (this.showThankYou || this.isSubmitting) return;
         const el = document.getElementById('xxTrustedFormCertUrl') as HTMLInputElement | null;
         const val = el?.value || '';
         if (val) {
           this.xxTrustedFormCertUrl = val;
+          return;
         }
-        this.trustedFormPollTimer = setTimeout(poll, 300);
+        if (this.trustedFormPollTimer) clearTimeout(this.trustedFormPollTimer);
+        this.trustedFormPollTimer = setTimeout(poll, retryInterval);
       };
-      this.trustedFormInjected = true;
-      this.trustedFormPollTimer = setTimeout(poll, 500);
+
+      if (this.trustedFormPollTimer) clearTimeout(this.trustedFormPollTimer);
+      this.trustedFormPollTimer = setTimeout(poll, startDelay);
     } catch (e) {
       console.error('Failed to inject TrustedForm:', e);
     }
