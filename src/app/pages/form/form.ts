@@ -307,6 +307,9 @@ export class Form implements OnInit {
         });
       }
     } else if (this.currentStep === 8) {
+      if (!this.validateCurrentStep()) {
+        return;
+      }
       this.isValidatingIP = true;
       this.http.get(`https://ipapi.co/${this.ipaddress}/json/`).subscribe({
         next: (data: any) => {
